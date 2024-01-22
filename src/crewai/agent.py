@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 
 from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.memory import ConversationSummaryMemory
-from langchain.tools.render import render_text_description
+from langchain.tools.render import format_tool_to_openai_function
 from langchain_core.runnables.config import RunnableConfig
 from langchain_openai import ChatOpenAI
 from pydantic import (
@@ -94,7 +94,7 @@ class Agent(BaseModel):
     )
     llm: Optional[Any] = Field(
         default_factory=lambda: ChatOpenAI(
-            model_name="gpt-4",
+            model_name="gpt-4-1106-preview",
         ),
         description="Language model that will run the agent.",
     )
@@ -152,7 +152,7 @@ class Agent(BaseModel):
             {
                 "input": task,
                 "tool_names": self.__tools_names(tools),
-                "tools": render_text_description(tools),
+                "tools": [format_tool_to_openai_function(tool) for tool in tools],
             },
             RunnableConfig(callbacks=[self.tools_handler]),
         )["output"]

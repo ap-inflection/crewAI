@@ -1,3 +1,4 @@
+import json
 import time
 from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
 
@@ -188,8 +189,13 @@ class CrewAgentExecutor(AgentExecutor):
                 if return_direct:
                     tool_run_kwargs["llm_prefix"] = ""
                 # We then call the tool on the tool input to get an observation
+                try:
+                    tool_input = json.loads(agent_action.tool_input)
+                except ValueError:
+                    tool_input = agent_action.tool_input
+
                 observation = tool.run(
-                    agent_action.tool_input,
+                    tool_input=tool_input,
                     verbose=self.verbose,
                     color=color,
                     callbacks=run_manager.get_child() if run_manager else None,
